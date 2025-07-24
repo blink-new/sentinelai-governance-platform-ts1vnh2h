@@ -1,205 +1,361 @@
 # SentinelAI: Real-Time AI Governance & Policy Enforcement Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust](https://img.shields.io/badge/rust-1.75+-orange.svg)](https://www.rust-lang.org)
-[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org)
+[![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.0+-blue.svg)](https://www.typescriptlang.org)
 
-SentinelAI is an enterprise-grade, real-time AI governance platform designed for high-performance policy enforcement and compliance automation. Built for regulated industries with sub-10ms policy evaluation, multi-tenant SaaS architecture, and comprehensive enterprise features.
+SentinelAI is an enterprise-grade, real-time AI governance platform designed for high-performance policy enforcement and compliance automation. It features a Rust-based CLI for sub-10ms policy evaluation, a Python FastAPI server for ML-driven evaluators, and a Next.js dashboard for policy management.
 
-## 🚀 Key Features
-
-### ⚡ High-Performance Architecture
-- **Sub-10ms Policy Evaluation** - Rust-based engine with early exit optimization
-- **Two-Stage Evaluation Pipeline** - Fast Rust evaluators + ML Python evaluators
-- **Real-time Prevention** - Instant blocking with provider-agnostic LLM proxy
-- **Horizontal Scaling** - Docker/Kubernetes ready with load balancing
-
-### 🛡️ Policy Engine
-- **Policy-as-Code** - YAML-based policy definitions with version control
-- **Multiple Policy Types**:
-  - `keyword_filter` (Rust) - Regex-based detection
-  - `performance` (Rust) - Response quality metrics
-  - `content_safety` (Python) - ML toxicity evaluation
-  - `semantic` (Python) - Similarity matching
-- **Early Exit Optimization** - Stop evaluation on first critical violation
-
-### 🏢 Enterprise Features
-- **Multi-tenant SaaS** - Organization isolation with RBAC
-- **SSO Integration** - SAML, OAuth, LDAP support
-- **Comprehensive Audit Logging** - SOC 2 compliance ready
-- **Advanced Analytics** - Usage metrics and policy effectiveness
-- **Webhook Integration** - Real-time violation notifications
-- **API Documentation** - OpenAPI/Swagger with SDKs
-
-### 🔌 Provider Support
-- **OpenAI** - GPT-4, GPT-3.5-turbo
-- **Anthropic** - Claude 3, Claude 2
-- **Google** - Gemini Pro, PaLM
-- **Azure OpenAI** - Enterprise deployment
-- **Custom Providers** - Extensible architecture
-
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Rust CLI      │    │  FastAPI Server │    │ Next.js Dashboard│
-│   (core/)       │    │   (server/)     │    │     (web/)      │
-│                 │    │                 │    │                 │
-│ • Policy Engine │◄──►│ • ML Evaluators │◄──►│ • Policy Mgmt   │
-│ • LLM Proxy     │    │ • API Endpoints │    │ • Analytics     │
-│ • Sub-10ms Eval │    │ • Auth & RBAC   │    │ • User Interface│
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │    MongoDB      │
-                    │                 │
-                    │ • Policies      │
-                    │ • Users         │
-                    │ • Audit Logs    │
-                    │ • Analytics     │
-                    └─────────────────┘
+sentinelai/
+├── core/                    # Rust CLI - High-performance policy engine
+├── server/                  # Python FastAPI - ML evaluators & API
+├── web/                     # React/TypeScript - Management dashboard
+├── docker-compose.yml       # Complete orchestration
+└── examples/               # Policy templates & configurations
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- Rust 1.75+ (for development)
-- Python 3.11+ (for development)
-- Node.js 18+ (for development)
 
-### 1. Clone Repository
+- **Rust** 1.70+ (for CLI)
+- **Python** 3.8+ (for server)
+- **Node.js** 18+ (for web dashboard)
+- **Docker** & **Docker Compose** (for deployment)
+- **MongoDB** (for data storage)
+
+### 1. Clone & Setup
+
 ```bash
 git clone https://github.com/your-org/sentinelai.git
 cd sentinelai
+
+# Install Rust CLI
+cd core
+cargo build --release
+cargo install --path .
+
+# Install Python server dependencies
+cd ../server
+pip install -r requirements.txt
+
+# Install web dashboard dependencies
+cd ../web
+npm install
 ```
 
-### 2. Start with Docker Compose
+### 2. Start Services
+
 ```bash
-# Start all services
+# Start all services with Docker Compose
 docker-compose up -d
 
-# Check service health
-docker-compose ps
-```
+# Or start individually:
 
-### 3. Access Services
-- **Web Dashboard**: http://localhost:3000
-- **FastAPI Docs**: http://localhost:8000/docs
-- **Rust CLI Proxy**: http://localhost:8080
-- **Grafana Monitoring**: http://localhost:3001 (admin/admin)
+# Start MongoDB
+docker run -d -p 27017:27017 --name sentinelai-mongo mongo:latest
 
-### 4. CLI Usage
-```bash
-# Install CLI (development)
-cd core && cargo install --path .
-
-# Authenticate
-sentinelai auth login
-
-# Create a policy
-sentinelai policy create --file examples/keyword-filter.yaml
-
-# Start real-time proxy
-sentinelai guard --port 8080 --organization your-org-id
-
-# Test evaluation
-sentinelai evaluate --content "Test message" --policy keyword-filter
-```
-
-## 📋 Policy Configuration
-
-### Example: Keyword Filter Policy
-```yaml
-# policies/keyword-filter.yaml
-name: "Profanity Filter"
-description: "Block inappropriate language"
-type: keyword_filter
-enabled: true
-config:
-  patterns:
-    - "\\b(badword1|badword2)\\b"
-    - "inappropriate.*content"
-  case_sensitive: false
-  action: block
-```
-
-### Example: Content Safety Policy
-```yaml
-# policies/content-safety.yaml
-name: "Toxicity Detection"
-description: "ML-based toxicity detection"
-type: content_safety
-enabled: true
-config:
-  toxicity_threshold: 0.7
-  categories:
-    - hate_speech
-    - harassment
-    - violence
-  action: block
-```
-
-## 🔧 Development
-
-### Rust CLI Development
-```bash
-cd core
-cargo build
-cargo test
-cargo run -- --help
-```
-
-### Python Server Development
-```bash
+# Start FastAPI server
 cd server
-python -m venv venv
-source venv/bin/activate  # or `venv\\Scripts\\activate` on Windows
-pip install -r requirements.txt
-python main.py
-```
+uvicorn main:app --host 0.0.0.0 --port 8000
 
-### Web Dashboard Development
-```bash
-npm install
+# Start web dashboard
+cd web
 npm run dev
 ```
 
-## 📊 Performance Benchmarks
+### 3. Configure CLI
 
-| Metric | Target | Achieved |
-|--------|--------|----------|
-| Policy Evaluation | <10ms | 3-8ms |
-| LLM Proxy Latency | <50ms | 15-35ms |
-| Throughput | 1000 req/s | 1200+ req/s |
-| Memory Usage | <512MB | 256MB |
+```bash
+# Authenticate with SentinelAI
+sentinelai auth login --api-key sk_your_api_key
 
-## 🔐 Security & Compliance
+# Test connection
+sentinelai auth test
 
+# View available commands
+sentinelai --help
+```
+
+## 🛡️ Core Features
+
+### ⚡ Sub-10ms Policy Evaluation
+- **Two-stage pipeline**: Fast Rust evaluators → Comprehensive Python ML
+- **Early exit optimization**: Stop on first critical violation
+- **Concurrent evaluation**: Parallel policy execution
+- **Performance target**: 10-50ms end-to-end evaluation
+
+### 🔧 CLI Commands
+
+#### Real-time Policy Enforcement
+```bash
+# Start LLM proxy with policy enforcement
+sentinelai guard --port 8080 --policies pol_001,pol_002
+
+# Proxy OpenAI requests with governance
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-openai-key" \
+  -d '{"model": "gpt-4", "messages": [{"role": "user", "content": "Hello"}]}'
+```
+
+#### Content Evaluation
+```bash
+# Evaluate content against policies
+sentinelai evaluate --content "Test message" --format table
+
+# Test specific policy
+sentinelai evaluate --content "Test" --policy-id pol_001 --verbose
+
+# Multiple output formats
+sentinelai evaluate --content "Test" --format json
+sentinelai evaluate --content "Test" --format yaml
+```
+
+#### Policy Management
+```bash
+# List all policies
+sentinelai policy list --format table
+
+# Create new policy
+sentinelai policy create \
+  --name "Profanity Filter" \
+  --type keyword_filter \
+  --config examples/policies/keyword-filter.yaml
+
+# Get policy details
+sentinelai policy get pol_001 --format yaml
+
+# Update policy
+sentinelai policy update pol_001 --status active
+
+# Delete policy
+sentinelai policy delete pol_001 --force
+```
+
+### 📊 Policy Types
+
+#### 1. Keyword Filter (Rust) - Ultra Fast
+```yaml
+# examples/policies/keyword-filter.yaml
+name: "Profanity Filter"
+type: keyword_filter
+config:
+  patterns:
+    - "\\b(spam|scam|fraud)\\b"
+    - "\\b(hate|toxic)\\b"
+  case_sensitive: false
+  severity: high
+  action: block
+```
+
+#### 2. Performance (Rust) - Quality Metrics
+```yaml
+# examples/policies/performance.yaml
+name: "Response Quality"
+type: performance
+config:
+  min_length: 10
+  max_length: 1000
+  required_quality_score: 0.7
+  check_coherence: true
+```
+
+#### 3. Content Safety (Python) - ML-based
+```yaml
+# examples/policies/content-safety.yaml
+name: "Toxicity Detection"
+type: content_safety
+config:
+  toxicity_threshold: 0.8
+  model: "unitary/toxic-bert"
+  categories:
+    - toxicity
+    - severe_toxicity
+    - obscene
+    - threat
+```
+
+#### 4. Semantic (Python) - Similarity Matching
+```yaml
+# examples/policies/semantic.yaml
+name: "Brand Safety"
+type: semantic
+config:
+  similarity_threshold: 0.85
+  reference_texts:
+    - "inappropriate brand content"
+    - "competitor mentions"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+```
+
+## 🌐 API Endpoints
+
+### FastAPI Server (Port 8000)
+
+#### LLM Proxy with Policy Enforcement
+```bash
+POST /v1/chat/completions
+# OpenAI-compatible endpoint with real-time policy enforcement
+```
+
+#### Direct Policy Evaluation
+```bash
+POST /v1/evaluation/evaluate
+# Evaluate content against specific policies
+
+GET /v1/evaluation/history
+# Get evaluation history and analytics
+```
+
+#### Policy Management
+```bash
+GET /v1/policies/
+POST /v1/policies/
+GET /v1/policies/{policy_id}
+PUT /v1/policies/{policy_id}
+DELETE /v1/policies/{policy_id}
+```
+
+#### Authentication
+```bash
+POST /v1/auth/login
+POST /v1/auth/refresh
+GET /v1/auth/me
+```
+
+### Web Dashboard (Port 3000)
+
+- **Dashboard**: Real-time metrics and system health
+- **Policy Management**: CRUD operations with YAML editor
+- **Real-time Monitoring**: Live evaluation streams
+- **Analytics**: Usage metrics and policy effectiveness
+- **Team Management**: RBAC and user permissions
+- **API Documentation**: Interactive OpenAPI/Swagger
+
+## 🏢 Enterprise Features
+
+### 🔐 Security & Compliance
 - **SOC 2 Type II** compliance framework
 - **GDPR/CCPA** data privacy compliance
 - **Encryption** at rest and in transit
 - **VPC Support** for private cloud deployment
-- **Regular Security Audits** and penetration testing
+- **Audit Logging** with comprehensive compliance trail
 
-## 💰 Pricing Tiers
+### 👥 Multi-tenant SaaS
+- **Organization isolation** with data segregation
+- **Role-based Access Control** (Admin, Manager, Analyst, Viewer)
+- **SSO Integration** (SAML, OAuth, LDAP)
+- **Custom Branding** and white-label options
 
-| Plan | Price/Month | Evaluations | Features |
-|------|-------------|-------------|----------|
-| **Free** | $0 | 1,000 | Basic policies, community support |
-| **Pro** | $99 | 100,000 | Advanced ML, priority support |
-| **Enterprise** | Custom | Unlimited | SSO, custom integrations, SLA |
+### 📈 Advanced Analytics
+- **Usage metrics** and cost optimization
+- **Policy effectiveness** tracking
+- **ROI metrics** and adoption analytics
+- **Real-time dashboards** with Prometheus/Grafana
+
+### 🔗 Integration Ecosystem
+- **Webhook Integration** for real-time notifications
+- **API SDKs** (Python, Node.js, Go)
+- **Integration Marketplace** with pre-built connectors
+- **Custom Integrations** via REST API
+
+## 💰 Business Model
+
+### SaaS Pricing Tiers
+- **Free**: 1,000 evaluations/month
+- **Pro**: $99/month - 50,000 evaluations
+- **Enterprise**: Custom pricing with advanced features
+
+### Usage-based Billing
+- Per evaluation pricing
+- Per policy pricing
+- Per user pricing
+- API rate limiting with overage charges
+
+## 🚀 Deployment
+
+### Docker Compose (Recommended)
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Scale services
+docker-compose up -d --scale server=3
+```
+
+### Kubernetes
+```bash
+# Deploy to Kubernetes
+kubectl apply -f k8s/
+
+# Monitor deployment
+kubectl get pods -l app=sentinelai
+```
+
+### Cloud Deployment
+- **AWS**: ECS, EKS, Lambda
+- **GCP**: Cloud Run, GKE, Cloud Functions
+- **Azure**: Container Instances, AKS, Functions
+
+## 📊 Performance Benchmarks
+
+### Evaluation Latency
+- **Keyword Filter**: < 1ms
+- **Performance Check**: < 5ms
+- **Content Safety**: < 50ms
+- **Semantic Analysis**: < 100ms
+- **End-to-end**: 10-50ms (with early exit)
+
+### Throughput
+- **CLI**: 10,000+ evaluations/second
+- **API Server**: 1,000+ requests/second
+- **Concurrent Policies**: 100+ policies per evaluation
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+# Rust CLI tests
+cd core
+cargo test
+
+# Python server tests
+cd server
+pytest
+
+# Web dashboard tests
+cd web
+npm test
+```
+
+### Integration Tests
+```bash
+# End-to-end testing
+docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+```
+
+### Load Testing
+```bash
+# API load testing
+cd server
+locust -f tests/load_test.py --host http://localhost:8000
+```
 
 ## 📚 Documentation
 
-- [API Documentation](http://localhost:8000/docs) - Interactive OpenAPI docs
-- [CLI Reference](./docs/cli.md) - Complete command reference
-- [Policy Guide](./docs/policies.md) - Policy creation and management
-- [Deployment Guide](./docs/deployment.md) - Production deployment
-- [Integration Guide](./docs/integrations.md) - Third-party integrations
+- **API Documentation**: http://localhost:8000/docs (Swagger UI)
+- **CLI Help**: `sentinelai --help`
+- **Policy Examples**: `examples/policies/`
+- **Deployment Guides**: `docs/deployment/`
+- **Integration Guides**: `docs/integrations/`
 
 ## 🤝 Contributing
 
@@ -209,24 +365,54 @@ npm run dev
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Development Setup
+```bash
+# Install development dependencies
+make dev-setup
+
+# Run all tests
+make test
+
+# Run linting
+make lint
+
+# Build all components
+make build
+```
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-- **Documentation**: [docs.sentinelai.com](https://docs.sentinelai.com)
+- **Documentation**: [docs.sentinelai.dev](https://docs.sentinelai.dev)
 - **Community**: [Discord](https://discord.gg/sentinelai)
-- **Enterprise**: [sales@sentinelai.com](mailto:sales@sentinelai.com)
 - **Issues**: [GitHub Issues](https://github.com/your-org/sentinelai/issues)
+- **Enterprise Support**: enterprise@sentinelai.dev
 
-## 🗺️ Roadmap
+## 🎯 Roadmap
 
-- [ ] **Q1 2024**: Advanced ML models, custom evaluators
-- [ ] **Q2 2024**: Multi-cloud deployment, edge computing
-- [ ] **Q3 2024**: Real-time collaboration, policy marketplace
-- [ ] **Q4 2024**: AI-powered policy generation, auto-tuning
+### Q1 2024
+- [ ] Advanced ML models integration
+- [ ] Real-time streaming evaluations
+- [ ] Enhanced webhook system
+- [ ] Mobile dashboard app
+
+### Q2 2024
+- [ ] Multi-cloud deployment
+- [ ] Advanced analytics dashboard
+- [ ] Custom policy DSL
+- [ ] Compliance reporting automation
+
+### Q3 2024
+- [ ] AI-powered policy recommendations
+- [ ] Advanced threat detection
+- [ ] Integration marketplace expansion
+- [ ] Performance optimization
 
 ---
 
-**Built with ❤️ for enterprise AI governance**
+**Built with ❤️ by the SentinelAI Team**
+
+*Securing AI, one policy at a time.*
