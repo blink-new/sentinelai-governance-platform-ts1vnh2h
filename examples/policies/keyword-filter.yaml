@@ -1,0 +1,45 @@
+name: "Profanity and Inappropriate Content Filter"
+description: "Blocks messages containing profanity, inappropriate language, or sensitive topics"
+type: keyword_filter
+enabled: true
+organization_id: "org_example"
+created_by: "admin@example.com"
+
+config:
+  patterns:
+    # Profanity patterns
+    - "\\b(damn|hell|shit|fuck|bitch|asshole)\\b"
+    - "\\b(stupid|idiot|moron|dumb)\\s+(person|people|user|customer)"
+    
+    # Inappropriate content
+    - "\\b(porn|sex|nude|naked|adult\\s+content)\\b"
+    - "\\b(drug|cocaine|marijuana|weed|heroin)\\s+(deal|sell|buy)"
+    
+    # Sensitive topics (configurable based on organization)
+    - "\\b(confidential|secret|classified)\\s+(information|data|document)"
+    - "\\b(password|api[_\\s]?key|secret[_\\s]?key|token)\\s*[:=]"
+    
+    # Hate speech patterns
+    - "\\b(hate|despise|loathe)\\s+\\w+\\s+(people|group|race|religion)"
+    - "\\b(kill|destroy|eliminate)\\s+all\\s+\\w+"
+    
+    # Harassment patterns
+    - "\\b(shut\\s+up|go\\s+away|leave\\s+me\\s+alone)"
+    - "\\b(you\\s+are|you're)\\s+(worthless|pathetic|disgusting)"
+    
+  case_sensitive: false
+  action: block
+
+# Metadata for policy management
+metadata:
+  version: "1.0"
+  category: "content_moderation"
+  severity: "medium"
+  tags: ["profanity", "inappropriate", "harassment"]
+  
+# Audit information
+audit:
+  created_at: "2024-01-15T10:30:00Z"
+  updated_at: "2024-01-15T10:30:00Z"
+  last_reviewed: "2024-01-15T10:30:00Z"
+  review_frequency_days: 30

@@ -1,0 +1,95 @@
+name: "ML-Based Content Safety Detection"
+description: "Advanced machine learning model for detecting toxic, harmful, or inappropriate content"
+type: content_safety
+enabled: true
+organization_id: "org_example"
+created_by: "admin@example.com"
+
+config:
+  # Toxicity threshold (0.0 - 1.0, higher = more strict)
+  toxicity_threshold: 0.7
+  
+  # Categories to evaluate
+  categories:
+    - hate_speech      # Hate speech and discrimination
+    - harassment       # Personal attacks and bullying
+    - violence         # Violent content and threats
+    - self_harm        # Self-harm and suicide content
+    - sexual_content   # Sexual or adult content
+    - profanity        # Profanity and offensive language
+    - spam             # Spam and promotional content
+    - misinformation   # False or misleading information
+  
+  # Action to take on violation
+  action: block
+  
+  # Model configuration
+  models:
+    primary: "unitary/toxic-bert"           # Primary toxicity model
+    secondary: "martin-ha/toxic-comment-model"  # Backup model
+    ensemble: true                          # Use ensemble scoring
+    
+  # Azure Content Safety integration (optional)
+  azure_content_safety:
+    enabled: true
+    endpoint: "${AZURE_CONTENT_SAFETY_ENDPOINT}"
+    api_key: "${AZURE_CONTENT_SAFETY_KEY}"
+    categories:
+      - Hate
+      - SelfHarm
+      - Sexual
+      - Violence
+    severity_threshold: 2  # 0-7 scale
+  
+  # Custom category configurations
+  category_configs:
+    hate_speech:
+      threshold: 0.8
+      severity: "high"
+      patterns:
+        - "racial slurs"
+        - "religious discrimination"
+        - "gender-based hate"
+    
+    harassment:
+      threshold: 0.7
+      severity: "medium"
+      patterns:
+        - "personal attacks"
+        - "cyberbullying"
+        - "doxxing attempts"
+    
+    violence:
+      threshold: 0.9
+      severity: "critical"
+      patterns:
+        - "death threats"
+        - "violence incitement"
+        - "terrorist content"
+
+# Performance settings
+performance:
+  max_evaluation_time_ms: 5000  # Maximum time for evaluation
+  cache_results: true           # Cache evaluation results
+  cache_ttl_seconds: 3600      # Cache time-to-live
+  
+# Metadata for policy management
+metadata:
+  version: "2.1"
+  category: "ai_safety"
+  severity: "high"
+  tags: ["ml", "toxicity", "content_safety", "ai"]
+  
+# Audit information
+audit:
+  created_at: "2024-01-15T10:30:00Z"
+  updated_at: "2024-01-20T14:15:00Z"
+  last_reviewed: "2024-01-20T14:15:00Z"
+  review_frequency_days: 14
+  
+# Compliance information
+compliance:
+  gdpr_compliant: true
+  ccpa_compliant: true
+  coppa_compliant: true
+  data_retention_days: 90
